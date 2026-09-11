@@ -17,7 +17,11 @@ from store import load_cart, get_cart_summary, update_cart_action, load_orders, 
 load_dotenv()
 
 # ---- Data ----
-with open("products.json", "r", encoding="utf-8") as f:
+# Get the absolute path of the directory containing this file (backend/)
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# Construct the absolute path to products.json
+with open(os.path.join(BASE_DIR, "products.json"), "r", encoding="utf-8") as f:
     PRODUCTS = json.load(f)
 
 PRODUCTS_BY_ID = {str(p["id"]): p for p in PRODUCTS}
