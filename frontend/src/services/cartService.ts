@@ -1,7 +1,8 @@
 import { getSessionId } from '../utils/session';
 import { Order } from './orderService';
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+// Use empty string so that relative paths work (e.g., /api/cart)
+const API_BASE = import.meta.env.VITE_API_BASE_URL || '';
 
 export interface CartItem {
   cart_item_id: string;
