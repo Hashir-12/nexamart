@@ -564,7 +564,7 @@ async def get_categories():
 
 # ---- Cart endpoints (with session) ----
 @app.get("/api/cart")
-async def get_cart(session_id: str = Header(...)):
+async def get_cart(session_id: str = Header(..., alias="X-Session-ID")):
     cart = load_cart(session_id)
     return get_cart_summary(cart, PRODUCTS_BY_ID)
 
@@ -574,7 +574,7 @@ class AddCartItem(BaseModel):
     selections: Optional[Dict[str, str]] = None
 
 @app.post("/api/cart/add")
-async def add_cart_item(item: AddCartItem, session_id: str = Header(...)):
+async def add_cart_item(item: AddCartItem, session_id: str = Header(..., alias="X-Session-ID")):
     result = update_cart_action(
         session_id=session_id,
         action="add",
@@ -589,7 +589,7 @@ async def add_cart_item(item: AddCartItem, session_id: str = Header(...)):
     return get_cart_summary(cart, PRODUCTS_BY_ID)
 
 @app.delete("/api/cart/items/{cart_item_id}")
-async def remove_cart_item(cart_item_id: str, session_id: str = Header(...)):
+async def remove_cart_item(cart_item_id: str, session_id: str = Header(..., alias="X-Session-ID")):
     result = update_cart_action(
         session_id=session_id,
         action="remove",
@@ -606,7 +606,7 @@ class UpdateCartItem(BaseModel):
     selections: Optional[Dict[str, str]] = None
 
 @app.put("/api/cart/items/{cart_item_id}")
-async def update_cart_item(cart_item_id: str, update: UpdateCartItem, session_id: str = Header(...)):
+async def update_cart_item(cart_item_id: str, update: UpdateCartItem, session_id: str = Header(..., alias="X-Session-ID")):
     if update.quantity is not None:
         result = update_cart_action(
             session_id=session_id,
@@ -631,13 +631,13 @@ async def update_cart_item(cart_item_id: str, update: UpdateCartItem, session_id
     return get_cart_summary(cart, PRODUCTS_BY_ID)
 
 @app.delete("/api/cart")
-async def clear_cart(session_id: str = Header(...)):
+async def clear_cart(session_id: str = Header(..., alias="X-Session-ID")):
     clear_cart(session_id)
     return {"status": "cleared"}
 
 # ---- Checkout endpoint ----
 @app.post("/api/checkout")
-async def checkout(session_id: str = Header(...)):
+async def checkout(session_id: str = Header(..., alias="X-Session-ID")):
     cart = load_cart(session_id)
     if not cart:
         raise HTTPException(status_code=400, detail="Cart is empty")
@@ -648,11 +648,11 @@ async def checkout(session_id: str = Header(...)):
 
 # ---- Order endpoints ----
 @app.get("/api/orders")
-async def get_orders(session_id: str = Header(...)):
+async def get_orders(session_id: str = Header(..., alias="X-Session-ID")):
     return load_orders(session_id)
 
 @app.get("/api/orders/{order_id}")
-async def get_order(order_id: str, session_id: str = Header(...)):
+async def get_order(order_id: str, session_id: str = Header(..., alias="X-Session-ID")):
     orders = load_orders(session_id)
     for o in orders:
         if o["id"] == order_id:
@@ -661,7 +661,7 @@ async def get_order(order_id: str, session_id: str = Header(...)):
 
 # ---- Chat endpoints ----
 @app.post("/api/chat/stream")
-async def chat_stream_endpoint(req: ChatRequest, session_id: str = Header(...)):
+async def chat_stream_endpoint(req: ChatRequest, session_id: str = Header(..., alias="X-Session-ID")):
     async def event_generator():
         queue = asyncio.Queue()
 
@@ -696,7 +696,7 @@ async def chat_stream_endpoint(req: ChatRequest, session_id: str = Header(...)):
     return StreamingResponse(event_generator(), media_type="text/event-stream")
 
 @app.post("/api/chat", response_model=ChatResponse)
-async def chat_endpoint(req: ChatRequest, session_id: str = Header(...)):
+async def chat_endpoint(req: ChatRequest, session_id: str = Header(..., alias="X-Session-ID")):
     try:
         collected = []
         def collect(token):
